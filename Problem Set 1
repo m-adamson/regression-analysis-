@@ -1,0 +1,59 @@
+---
+title: "Problem Set 2"
+output: html_document
+author: Michael Adamson
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+#libraries
+library(wooldridge)
+library(ggplot2)
+```
+
+
+# Plot marginal effect:
+
+```{r}
+
+# model1
+
+data(wage2)
+wage2$educ_exper = wage2$educ*wage2$exper
+mod1 <- lm(data = wage2, lwage ~ educ + exper + educ_exper)
+summary(mod1)
+
+# plot experience by education
+
+me_exper <- mod1$coef[3]+mod1$coef[4]*wage2$educ
+se_exper <- sqrt(vcov(mod1)[3,3]+(wage2$educ^2)*vcov(mod1)[4,4]+2*wage2$educ*vcov(mod1)[3,4])
+ggplot(wage2)+
+  geom_line(aes(x = educ, y = me_exper))+  
+  geom_line(aes(x = educ, y = me_exper - 2*se_exper), linetype = 2)+  
+  geom_line(aes(x = educ, y = me_exper + 2*se_exper), linetype = 2)+  
+  geom_hline(aes(yintercept = 0))+  
+  ylab("ME of Experence")+  
+  xlab("Education")+  
+  theme_bw()
+
+# plot education by experience
+
+me_educ <- mod1$coef[2]+mod1$coef[4]*wage2$exper
+se_educ <- sqrt(vcov(mod1)[2,2]+(wage2$exper^2)*vcov(mod1)[4,4]+2*wage2$exper*vcov(mod1)[2,4])
+ggplot(wage2) +
+  geom_line(aes(x = exper, y = me_educ)) + 
+  geom_line(aes(x = exper, y = me_educ - 2*se_educ), linetype = 2)+  
+  geom_line(aes(x = exper, y = me_educ + 2*se_educ), linetype = 2)+  
+  geom_hline(aes(yintercept = 0))+  
+  ylab("ME of Education")+  
+  xlab("Experience")+  
+  theme_bw()
+
+
+  
+
+```
